@@ -1,6 +1,6 @@
 #!/bin/bash
 # By Linc 10/1/2004
-# Last revision 10/09/2004
+# Last revision 10/14/2004
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -42,7 +42,7 @@ while read tdata
 	if echo $tdata | grep url=\' > /dev/null
 		then
 		url=`echo $tdata | cut -d"'" -f2`
-		if grep $url podcast.log > /dev/null
+		if grep "$url" podcast.log > /dev/null
 			then
 			echo > /dev/null
 			else
@@ -53,7 +53,7 @@ while read tdata
 	if echo $tdata | grep url=\" > /dev/null
                 then
 		 url=`echo $tdata | cut -d"\"" -f2`
-		if grep $url podcast.log > /dev/null
+		if grep "$url" podcast.log > /dev/null
                         then
                         echo > /dev/null
 			else
