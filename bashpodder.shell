@@ -1,6 +1,6 @@
 #!/bin/bash
 # By Linc 10/1/2004
-# Last revision 10/08/2004
+# Last revision 10/09/2004
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -31,7 +31,7 @@ fi
 # and pushes enclosure strings into temp file for parsing
 while read url
 	do
-	lynx -source $url | tr '\r' '\n' | grep "<enclosure " >> temp.data
+	lynx -source $url | sed 's/<enclosure/\n<enclosure/g' | grep "<enclosure " >> temp.data
 	done < bp.conf
 
 # Reads temp file and parses for enclosure url
