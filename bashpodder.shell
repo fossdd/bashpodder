@@ -1,13 +1,21 @@
 #!/bin/bash
 # By Linc 10/1/2004
-# Last revision 10/22/2004 - The *no lynx* version
+# Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
+# Last revision 10/23/2004 - The Lee Colleton/Wari Wahab/Dann Washko version.
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
 
+# Quickie change to make the script more cron friendly
+# Contributed by Wari Wahab
+workdir=`dirname $0`
+cd $workdir
+
 # datadir is the directory you want the audio files to be put into
 # I used a date string which will create a new directory every day
-datadir=`date +%m%d%y`
+# Changed to iso date format as suggested by Lee Colleton!
+# Updated to work on OSX by Dann Washko
+datadir=`date +%Y-%m-%d`
 
 # test for temporary file and delete if it exists
 if test -f temp.data
