@@ -1,17 +1,16 @@
 #!/bin/bash
 # By Linc 10/1/2004
 # Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
-# Last revision 11/13/2004 - Many Contributers!
+# Last revision 11/14/2004 - Many Contributers!
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
 
 # Make script crontab friendly:
-workdir=`dirname $0`
-cd $workdir
+cd $(dirname $0)
 
 # datadir is the directory you want podcasts saved to:
-datadir=`date +%Y-%m-%d`
+datadir=$(date +%Y-%m-%d)
 
 # Check for and create datadir if necessary:
 if test ! -d $datadir
@@ -19,16 +18,13 @@ if test ! -d $datadir
         mkdir $datadir
 fi
 
-# Check for and delete any temp file:
-if test -f temp.log
-        then
-        rm temp.log
-fi
+# Delete any temp file:
+rm -f temp.log
 
 # Read the bp.conf file and wget any url not already in the podcast.log file:
 while read podcast
 	do
-	file=`wget -q $podcast -O - | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p'`
+	file=$(wget -q $podcast -O - | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p')
 	for url in $file
 		do
 		echo $url >> temp.log
