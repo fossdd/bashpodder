@@ -1,6 +1,6 @@
 #!/bin/bash
 # By Linc 10/1/2004
-# Last revision 10/05/2004
+# Last revision 10/08/2004
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -39,14 +39,28 @@ while read url
 # Uses wget to download any files not already downloaded
 while read tdata
 	do
-	url=`echo $tdata | cut -d" " -f2 | cut -d"\"" -f2`
-	if grep $url podcast.log >/dev/null
+	if echo $tdata | grep url=\' > /dev/null
 		then
-		echo > /dev/null
-		else
-		wget -q -P $datadir $url
-		echo $tdata >> podcast.log
+		url=`echo $tdata | cut -d"'" -f2`
+		if grep $url podcast.log > /dev/null
+			then
+			echo > /dev/null
+			else
+			wget -q -P $datadir $url
+                        echo $url >> podcast.log
+		fi
 	fi
+	if echo $tdata | grep url=\" > /dev/null
+                then
+		 url=`echo $tdata | cut -d"\"" -f2`
+		if grep $url podcast.log > /dev/null
+                        then
+                        echo > /dev/null
+			else
+			wget -q -P $datadir $url
+                        echo $url >> podcast.log
+                fi
+        fi
 	done < temp.data
 
 # That's it!
