@@ -1,7 +1,7 @@
 #!/bin/bash
 # By Linc 10/1/2004
 # Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
-# Last revision 11/17/2004 - Many Contributers!
+# Last revision 12/14/2004 - Many Contributers!
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -35,6 +35,8 @@ while read podcast
 		done
 	done < bp.conf
 # Move dynamically created log file to permanent log file:
-mv temp.log podcast.log
+cat podcast.log >> temp.log
+sort temp.log | uniq > podcast.log
+rm temp.log
 # Create an m3u playlist:
 ls $datadir | grep -v m3u > $datadir/podcast.m3u
