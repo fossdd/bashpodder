@@ -1,76 +1,44 @@
 #!/bin/bash
 # By Linc 10/1/2004
 # Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
-# Last revision 10/23/2004 - The Lee Colleton/Wari Wahab/Dann Washko version.
+# Last revision 11/13/2004 - Many Contributers!
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
 
-# Quickie change to make the script more cron friendly
-# Contributed by Wari Wahab
+# Make script crontab friendly:
 workdir=`dirname $0`
 cd $workdir
 
-# datadir is the directory you want the audio files to be put into
-# I used a date string which will create a new directory every day
-# Changed to iso date format as suggested by Lee Colleton!
-# Updated to work on OSX by Dann Washko
+# datadir is the directory you want podcasts saved to:
 datadir=`date +%Y-%m-%d`
 
-# test for temporary file and delete if it exists
-if test -f temp.data
-	then
-	rm temp.data
-fi
-
-# test for existance of data directory and create if not there
+# Check for and create datadir if necessary:
 if test ! -d $datadir
-	then
-	mkdir $datadir
+        then
+        mkdir $datadir
 fi
 
-# test for existance of log file and create if not there
-if test ! -f podcast.log
-	then
-	touch podcast.log
+# Check for and delete any temp file:
+if test -f temp.log
+        then
+        rm temp.log
 fi
 
-# Read the conf file for rss feeds you wish to grab audio from
-# and pushes enclosure strings into temp file for parsing
-while read url
+# Read the bp.conf file and wget any url not already in the podcast.log file:
+while read podcast
 	do
-	wget -q $url -O - | sed 's/<enclosure/\n<enclosure/g' | grep "<enclosure " >> temp.data
-	done < bp.conf
-
-# Reads temp file and parses for enclosure url
-# Checks enclosure url against a log of already downloaded files
-# Uses wget to download any files not already downloaded
-while read tdata
-	do
-	if echo $tdata | grep url=\' > /dev/null
-		then
-		url=`echo $tdata | cut -d"'" -f2`
-		if grep "$url" podcast.log > /dev/null
+	file=`wget -q $podcast -O - | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p'`
+	for url in $file
+		do
+		echo $url >> temp.log
+		if ! grep "$url" podcast.log > /dev/null
 			then
-			echo > /dev/null
-			else
-			wget -q -P $datadir $url
-                        echo $url >> podcast.log
+			wget -q -P $datadir "$url"
 		fi
-	fi
-	if echo $tdata | grep url=\" > /dev/null
-                then
-		 url=`echo $tdata | cut -d"\"" -f2`
-		if grep "$url" podcast.log > /dev/null
-                        then
-                        echo > /dev/null
-			else
-			wget -q -P $datadir $url
-                        echo $url >> podcast.log
-                fi
-        fi
-	done < temp.data
-
-# That's it!
-# Oh yeah, you probably want an m3u playlist (at least I do)
+		done
+	done < bp.conf
+# Move dynamically created log file to perminant log file:
+mv temp.log podcast.log
+# Create an m3u playlist:
 ls $datadir | grep -v m3u > $datadir/podcast.m3u
