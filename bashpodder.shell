@@ -1,0 +1,54 @@
+#!/bin/bash
+# By Linc 10/1/2004
+# Last revision 10/05/2004
+# If you use this and have made improvements or have comments
+# drop me an email at linc dot fessenden at gmail dot com
+# I'd appreciate it!
+
+# datadir is the directory you want the audio files to be put into
+# I used a date string which will create a new directory every day
+datadir=`date +%m%d%y`
+
+# test for temporary file and delete if it exists
+if test -f temp.data
+	then
+	rm temp.data
+fi
+
+# test for existance of data directory and create if not there
+if test ! -d $datadir
+	then
+	mkdir $datadir
+fi
+
+# test for existance of log file and create if not there
+if test ! -f podcast.log
+	then
+	touch podcast.log
+fi
+
+# Read the conf file for rss feeds you wish to grab audio from
+# and pushes enclosure strings into temp file for parsing
+while read url
+	do
+	lynx -source $url | tr '\r' '\n' | grep "<enclosure " >> temp.data
+	done < bp.conf
+
+# Reads temp file and parses for enclosure url
+# Checks enclosure url against a log of already downloaded files
+# Uses wget to download any files not already downloaded
+while read tdata
+	do
+	url=`echo $tdata | cut -d" " -f2 | cut -d"\"" -f2`
+	if grep $url podcast.log >/dev/null
+		then
+		echo > /dev/null
+		else
+		wget -q -P $datadir $url
+		echo $tdata >> podcast.log
+	fi
+	done < temp.data
+
+# That's it!
+# Oh yeah, you probably want an m3u playlist (at least I do)
+ls $datadir | grep -v m3u > $datadir/podcast.m3u
