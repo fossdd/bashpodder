@@ -1,7 +1,7 @@
 #!/bin/bash
 # By Linc 10/1/2004
 # Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
-# Last revision 12/14/2004 - Many Contributers!
+# Last revision 07/01/2005 - Many Contributers!
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -24,13 +24,13 @@ rm -f temp.log
 # Read the bp.conf file and wget any url not already in the podcast.log file:
 while read podcast
 	do
-	file=$(wget -q $podcast -O - | tr '\r' '\n' | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p')
+	file=$(wget -q $podcast -O - | xsltproc parse_enclosure.xsl - 2> /dev/null) || file=$(wget -q $podcast -O - | tr '\r' '\n' | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p')
 	for url in $file
 		do
 		echo $url >> temp.log
 		if ! grep "$url" podcast.log > /dev/null
 			then
-			wget -q -P $datadir "$url"
+			wget -q -P $datadir "$url" && echo $url >> temp.log
 		fi
 		done
 	done < bp.conf
