@@ -1,7 +1,7 @@
 #!/bin/bash
 # By Linc 10/1/2004
 # Find the latest script at http://linc.homeunix.org:8080/scripts/bashpodder
-# Last revision 07/01/2005 - Many Contributers!
+# Revision 1.0 02/23/2006 - Many Contributers!
 # If you use this and have made improvements or have comments
 # drop me an email at linc dot fessenden at gmail dot com
 # I'd appreciate it!
@@ -12,11 +12,8 @@ cd $(dirname $0)
 # datadir is the directory you want podcasts saved to:
 datadir=$(date +%Y-%m-%d)
 
-# Check for and create datadir if necessary:
-if test ! -d $datadir
-        then
-        mkdir $datadir
-fi
+# create datadir if necessary:
+mkdir -p $datadir
 
 # Delete any temp file:
 rm -f temp.log
@@ -24,13 +21,13 @@ rm -f temp.log
 # Read the bp.conf file and wget any url not already in the podcast.log file:
 while read podcast
 	do
-	file=$(wget -q $podcast -O - | xsltproc parse_enclosure.xsl - 2> /dev/null) || file=$(wget -q $podcast -O - | tr '\r' '\n' | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p')
+	file=$(xsltproc parse_enclosure.xsl $podcast 2> /dev/null || wget -q $podcast -O - | tr '\r' '\n' | tr \' \" | sed -n 's/.*url="\([^"]*\)".*/\1/p')
 	for url in $file
 		do
 		echo $url >> temp.log
-		if ! grep "$url" podcast.log > /dev/null
-			then
-			wget -q -P $datadir "$url" && echo $url >> temp.log
+ 		if ! grep "$url" podcast.log > /dev/null
+ 			then
+			wget -t 10 -U BashPodder -c -q -O $datadir/$(echo "$url" | awk -F'/' {'print $NF'} | awk -F'?' {'print $1'}) "$url"
 		fi
 		done
 	done < bp.conf
